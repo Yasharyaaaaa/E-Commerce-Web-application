@@ -29,7 +29,7 @@ app.get("/api/health", (req, res) => {
 app.use(express.static(distPath));
 
 // All non-API routes → index.html (client-side routing)
-app.get("/{*splat}", (req, res) => {
+app.get("*", (req, res) => {
   res.sendFile(path.join(distPath, "index.html"));
 });
 
