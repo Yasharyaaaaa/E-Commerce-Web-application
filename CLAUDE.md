@@ -55,7 +55,7 @@ There is **no test suite** yet (`backend` test script is a placeholder).
 - **Routes are versioned**: `/api/auth/v1`, `/api/users/v1`, `/api/orders/v1`, `/api/products/v1`.
 - **Auth**: JWT signed with `JWT_SECRET`, returned both in an httpOnly `token` cookie *and* in the JSON body. Frontend stores it in `localStorage` and sends it as a `Bearer` header via the axios interceptor in `utils/api.js`. There is currently **no refresh-token rotation** — single access token.
 - **Roles**: `user` and `admin` only (see `user.model.js`). There is **no `seller` role** yet.
-- **Payments**: **Razorpay** (not Stripe). Flow = create order (`paymentStatus:"pending"`) → open Razorpay modal → `POST /verify-payment` verifies signature server-side → mark `completed`. There is currently no webhook endpoint.
+- **Payments**: **Razorpay** (not Stripe). Flow = create order (`paymentStatus:"pending"`) → open Razorpay modal → `POST /verify-payment` verifies signature server-side → mark `completed`. There is **also** a server-to-server webhook (`POST /api/orders/v1/webhook`, raw-body HMAC verified) that marks orders paid/failed independently — see "Security".
 - **Frontend state**: auth via React Context (`AuthContext`); cart via Redux Toolkit + redux-persist. Don't move auth into Redux without reason.
 - **Styling**: Tailwind v4 (via `@tailwindcss/vite`), `lucide-react` icons, `framer-motion`, `clsx`/`tailwind-merge`.
 
@@ -76,14 +76,22 @@ These exist in `shoptalk_build_roadmap.html` but are **not implemented** — see
 
 1. **Seller role & seller dashboard** — only `user`/`admin` exist; products are admin-only CRUD. (Chat is single-vendor for now.)
 2. **Admin moderation** — ban/unban users, flag/remove products. (Analytics dashboard is **done** — see below.)
-3. **Security hardening** — `helmet`, `cors` whitelist, `express-validator` input sanitization (rate-limiting exists).
-4. **Tests** — Jest + Supertest integration tests for auth/product/checkout.
-5. **Refresh-token pattern**.
+3. **Tests** — Jest + Supertest integration tests for auth/product/checkout.
+4. **Refresh-token pattern**.
+
+(Security hardening — helmet, cors whitelist, express-validator, Razorpay webhook — is **done**, see below.)
 
 ## Admin Analytics (implemented)
 
 - **Backend**: `GET /api/analytics/v1/overview` (admin-guarded) in `analytics.controller.js` — MongoDB aggregation for revenue (`$sum` on completed-payment orders), paid/total orders, users, products, conversion rate, a gap-filled 30-day revenue trend, top-5 products (`$unwind` items → units + revenue), order-status breakdown, and recent orders.
 - **Frontend**: `admin/pages/Dashboard.jsx` renders stat cards + **Recharts** (area = revenue trend, vertical bar = top products, donut = orders by status) + recent-orders table. Admin pages are **lazy-loaded** (`React.lazy` in `App.jsx`) so Recharts ships in a separate chunk, keeping the storefront bundle lean.
+
+## Security (implemented)
+
+- **`helmet`** in `src/app.js` with `contentSecurityPolicy: false` (the SPA loads the Razorpay checkout script + Cloudinary/Pexels images — a strict default CSP would block them) and `crossOriginResourcePolicy: cross-origin`.
+- **`cors`** with an origin whitelist from `CLIENT_URL` (comma-separated); requests with no Origin (curl/mobile/same-origin) are allowed.
+- **`express-validator`**: chains in `validators/{auth,product,order}.validator.js`, applied in routes before the controller, with `middleware/validate.middle.js` turning failures into a `400 ApiError`. (Rate-limiting via `express-rate-limit` already existed.)
+- **Razorpay webhook**: `controllers/webhook.controller.js`, mounted at `POST /api/orders/v1/webhook` **before `express.json()`** (uses `express.raw` — signature HMAC needs the raw body). Verifies `x-razorpay-signature` against `RAZORPAY_WEBHOOK_SECRET`, then marks the order `completed`/`failed` (idempotent) and fires `emitOrderPaid`. **Note**: `nodemon` doesn't watch `.env`, so adding the secret requires a manual backend restart.
 
 ## Gotchas
 

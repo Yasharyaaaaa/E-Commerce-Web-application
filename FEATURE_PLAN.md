@@ -10,7 +10,7 @@ Comparison of the current codebase against `shoptalk_build_roadmap.html`, and a 
 | **2. E-commerce core** | ✅ Mostly done | Product CRUD (Cloudinary), listing + search + filter + categories, Redux cart, checkout, orders. ⚠️ Uses **Razorpay** (not Stripe), and **signature verification** instead of a **webhook**. Product CRUD is admin-only, not seller-driven. Product has single `image`, not `images[]`. |
 | **3. Real-time chat** | ✅ **Done (single-vendor)** | `Conversation`/`Message` models, JWT-authed Socket.io, chat UI, presence, typing, read receipts, product-context card, live order cards. Buyer↔store (admin) model. See CLAUDE.md "Real-time Chat". |
 | **4. Admin panel + analytics** | ✅ Analytics done | Admin layout + Users/Products/Orders pages. **Analytics dashboard done**: `$sum` revenue, top products, 30-day revenue trend, orders-by-status, conversion (Recharts, `/api/analytics/v1/overview`). ⚠️ Still missing: ban/unban + product moderation. |
-| **5. Polish / tests / deploy** | 🟡 Partial | Deployed (Vercel + backend). ⚠️ No tests, missing `helmet`/`cors`/`express-validator`. |
+| **5. Polish / tests / deploy** | 🟡 Hardening done | Deployed (Vercel + backend). **Security hardening done**: `helmet`, `cors` whitelist, `express-validator` on auth/product/order, Razorpay webhook. ⚠️ Still missing: tests (Jest+Supertest). |
 
 ## What to add (priority order)
 

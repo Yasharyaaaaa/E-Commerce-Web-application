@@ -7,6 +7,8 @@ import { deleteProduct } from "../controllers/product/deleteProduct.controller.j
 import verificationToken from "../middleware/verifyToken.controller.js";
 import isAdmin from "../middleware/isAdmin.controller.js";
 import upload from "../config/multer.config.js";
+import validate from "../middleware/validate.middle.js";
+import { createProductValidator, updateProductValidator } from "../validators/product.validator.js";
 
 const productRouter = express.Router();
 
@@ -15,8 +17,8 @@ productRouter.get("/", getAllProducts);
 productRouter.get("/:id", getProductById);
 
 // Admin only routes
-productRouter.post("/", verificationToken, isAdmin, upload.single("image"), createProduct);
-productRouter.put("/:id", verificationToken, isAdmin, upload.single("image"), updateProduct);
+productRouter.post("/", verificationToken, isAdmin, upload.single("image"), createProductValidator, validate, createProduct);
+productRouter.put("/:id", verificationToken, isAdmin, upload.single("image"), updateProductValidator, validate, updateProduct);
 productRouter.delete("/:id", verificationToken, isAdmin, deleteProduct);
 
 export default productRouter;
