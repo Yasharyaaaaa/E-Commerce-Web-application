@@ -1,7 +1,9 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "/api", // Proxy will handle the actual backend URL
+  // Dev: "/api" via the Vite proxy. Prod: set VITE_API_URL to the backend, e.g.
+  // https://shoptalk-backend.onrender.com/api
+  baseURL: import.meta.env.VITE_API_URL || "/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -36,9 +38,7 @@ api.interceptors.response.use(
     if (status === 401 && original && !original._retried && !isRefreshCall) {
       original._retried = true;
       try {
-        refreshing =
-          refreshing ||
-          axios.post("/api/auth/v1/refresh", {}, { withCredentials: true });
+        refreshing = refreshing || api.post("/auth/v1/refresh");
         const { data } = await refreshing;
         refreshing = null;
 

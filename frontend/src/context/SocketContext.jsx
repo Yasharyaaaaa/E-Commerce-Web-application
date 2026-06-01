@@ -25,11 +25,12 @@ export const SocketProvider = ({ children }) => {
       return;
     }
 
-    // Connects to same origin; Vite proxies /socket.io to the backend in dev.
-    const s = io({
-      auth: { token },
-      autoConnect: true,
-    });
+    // Dev: same origin (Vite proxies /socket.io). Prod: connect to the backend
+    // origin derived from VITE_API_URL (e.g. https://shoptalk-backend.onrender.com).
+    const apiUrl = import.meta.env.VITE_API_URL;
+    const socketUrl = apiUrl ? new URL(apiUrl).origin : undefined;
+    const opts = { auth: { token }, autoConnect: true, withCredentials: true };
+    const s = socketUrl ? io(socketUrl, opts) : io(opts);
 
     s.on("connect", () => setConnected(true));
     s.on("disconnect", () => setConnected(false));
