@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, User, Menu, Search, ChevronDown, X, Package, LogOut, UserCircle } from "lucide-react";
+import { ShoppingCart, User, Menu, Search, ChevronDown, X, Package, LogOut, UserCircle, MessageCircle } from "lucide-react";
 import { useSelector } from "react-redux";
 import { selectCartCount } from "../store/cartSlice";
 import { useSearch } from "../hooks/useSearch";
@@ -73,6 +73,13 @@ const Navbar = () => {
         {/* Actions */}
         <div className="flex items-center space-x-4 md:space-x-6">
           <button className="md:hidden"><Search size={24} /></button>
+
+          {/* Chat — only when signed in */}
+          {user && (
+            <Link to="/chat" className="hover:scale-110 transition-transform" aria-label="Messages">
+              <MessageCircle size={24} />
+            </Link>
+          )}
 
           {/* Cart */}
           <Link to="/cart" className="relative hover:scale-110 transition-transform">

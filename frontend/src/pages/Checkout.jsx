@@ -216,7 +216,7 @@ const ReviewStep = ({ shipping, items, total, onBack, onConfirm }) => {
               <p className="font-bold text-xs uppercase tracking-tight line-clamp-1">{item.name}</p>
               <p className="text-gray-500 text-xs mt-0.5">Qty: {item.quantity}</p>
             </div>
-            <span className="font-black text-sm shrink-0">${(item.price * item.quantity).toFixed(2)}</span>
+            <span className="font-black text-sm shrink-0">₹{(item.price * item.quantity).toFixed(2)}</span>
           </div>
         ))}
       </div>
@@ -233,7 +233,7 @@ const ReviewStep = ({ shipping, items, total, onBack, onConfirm }) => {
       {/* Total */}
       <div className="flex justify-between items-center text-lg font-black border-t border-gray-100 pt-4">
         <span>Total</span>
-        <span>${total.toFixed(2)}</span>
+        <span>₹{total.toFixed(2)}</span>
       </div>
 
       {error && (

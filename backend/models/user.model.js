@@ -35,6 +35,14 @@ const userSchema = new mongoose.Schema(
     avatarPublicId: {
       type: String, // Cloudinary Public ID for deletion
     },
+    isOnline: {
+      type: Boolean,
+      default: false,
+    },
+    lastSeen: {
+      type: Date,
+      default: Date.now,
+    },
   },
   { timestamps: true },
 );

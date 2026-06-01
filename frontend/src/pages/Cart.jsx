@@ -73,7 +73,7 @@ const Cart = () => {
               <h3 className="font-bold uppercase tracking-tight text-sm line-clamp-1">
                 {item.name}
               </h3>
-              <p className="text-lg font-black mt-1">${item.price}</p>
+              <p className="text-lg font-black mt-1">₹{item.price}</p>
             </div>
 
             {/* Controls */}
@@ -100,7 +100,7 @@ const Cart = () => {
 
               {/* Subtotal */}
               <span className="font-black text-base w-20 text-right">
-                ${(item.price * item.quantity).toFixed(2)}
+                ₹{(item.price * item.quantity).toFixed(2)}
               </span>
 
               <button
@@ -121,7 +121,7 @@ const Cart = () => {
         <div className="space-y-3 text-sm font-medium">
           <div className="flex justify-between text-gray-500">
             <span>Subtotal</span>
-            <span>${total.toFixed(2)}</span>
+            <span>₹{total.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-gray-500">
             <span>Shipping</span>
@@ -129,7 +129,7 @@ const Cart = () => {
           </div>
           <div className="border-t border-gray-200 pt-3 flex justify-between text-lg font-black">
             <span>Total</span>
-            <span>${total.toFixed(2)}</span>
+            <span>₹{total.toFixed(2)}</span>
           </div>
         </div>
         <button

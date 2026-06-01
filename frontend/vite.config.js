@@ -13,6 +13,12 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true,
+      },
+      // Proxy the Socket.io websocket connection to the backend
+      '/socket.io': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        ws: true,
       }
     }
   }

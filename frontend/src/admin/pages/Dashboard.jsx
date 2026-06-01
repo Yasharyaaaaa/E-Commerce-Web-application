@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Users, Package, ShoppingBag, DollarSign, TrendingUp, ArrowUpRight } from "lucide-react";
+import { Users, Package, ShoppingBag, IndianRupee, TrendingUp, ArrowUpRight } from "lucide-react";
 import api from "../../utils/api";
 
 const StatCard = ({ icon: Icon, label, value, sub, color, delay }) => (
@@ -63,7 +63,7 @@ const Dashboard = () => {
     { icon: Users,       label: "Total Users",    value: loading ? "—" : stats.users,    color: "bg-blue-500",   sub: "Registered accounts",  delay: 0 },
     { icon: Package,     label: "Total Products",  value: loading ? "—" : stats.products, color: "bg-purple-500", sub: "In catalogue",          delay: 0.05 },
     { icon: ShoppingBag, label: "Total Orders",    value: loading ? "—" : stats.orders,   color: "bg-orange-500", sub: "All time",              delay: 0.1 },
-    { icon: DollarSign,  label: "Revenue",         value: loading ? "—" : `$${stats.revenue.toFixed(2)}`, color: "bg-green-500", sub: "All time", delay: 0.15 },
+    { icon: IndianRupee,  label: "Revenue",         value: loading ? "—" : `₹${stats.revenue.toFixed(2)}`, color: "bg-green-500", sub: "All time", delay: 0.15 },
   ];
 
   return (

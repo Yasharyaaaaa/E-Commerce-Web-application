@@ -68,7 +68,7 @@ const ProductCard = ({ product }) => {
             </div>
             <span className="text-[10px] font-bold text-gray-400">{rating}/5</span>
           </div>
-          <span className="text-lg font-black tracking-tighter">${product.price}</span>
+          <span className="text-lg font-black tracking-tighter">₹{product.price}</span>
         </div>
 
         {cartItem ? (

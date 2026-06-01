@@ -46,7 +46,7 @@ const OrderCard = ({ order }) => {
         <div className="flex items-center gap-3 shrink-0 ml-4">
           <Badge label={order.orderStatus}  type={order.orderStatus} />
           <Badge label={order.paymentStatus} type={order.paymentStatus} />
-          <span className="font-black text-sm">${order.totalAmount?.toFixed(2)}</span>
+          <span className="font-black text-sm">₹{order.totalAmount?.toFixed(2)}</span>
           {expanded ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-400" />}
         </div>
       </button>
@@ -67,7 +67,7 @@ const OrderCard = ({ order }) => {
                     </span>
                     <span className="font-medium">{item.name}</span>
                   </div>
-                  <span className="font-black">${(item.price * item.quantity).toFixed(2)}</span>
+                  <span className="font-black">₹{(item.price * item.quantity).toFixed(2)}</span>
                 </div>
               ))}
               {order.shippingAddress && (

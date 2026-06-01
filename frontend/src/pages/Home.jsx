@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Star, ShoppingCart, Plus, Minus } from "lucide-react";
+import { Star, ShoppingCart, Plus, Minus, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { useLocation, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, increase, decrease, selectItemInCart } from "../store/cartSlice";
 import { useSearch } from "../hooks/useSearch";
+import { useStartChat } from "../hooks/useStartChat";
 
 // ── Intersection observer hook ───────────────────────────────────────────────
 // Returns [ref, hasBeenVisible] — once visible, stays true forever
@@ -298,6 +299,7 @@ const ViewAllBtn = () => (
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
   const cartItem = useSelector(selectItemInCart(product._id));
+  const startChat = useStartChat();
 
   return (
     <motion.div
@@ -312,11 +314,19 @@ const ProductCard = ({ product }) => {
           decoding="async"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
         />
-        {product.price > 100 && (
+        {product.price > 8000 && (
           <span className="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-wider">
             Sale
           </span>
         )}
+        {/* Contact Store — opens chat with this product as context */}
+        <button
+          onClick={(e) => { e.preventDefault(); startChat(product._id); }}
+          title="Ask the store about this product"
+          className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur text-black flex items-center justify-center shadow-sm hover:bg-white hover:scale-110 transition-all"
+        >
+          <MessageCircle size={16} />
+        </button>
       </div>
 
       <div className="px-1 space-y-3 flex-grow flex flex-col">
@@ -333,10 +343,10 @@ const ProductCard = ({ product }) => {
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">4.5/5</span>
           </div>
           <div className="flex items-center space-x-2 pt-1">
-            <span className="text-lg font-black tracking-tighter">${product.price}</span>
-            {product.price > 100 && (
+            <span className="text-lg font-black tracking-tighter">₹{product.price}</span>
+            {product.price > 8000 && (
               <span className="text-sm font-bold text-gray-300 line-through tracking-tighter">
-                ${Math.round(product.price * 1.3)}
+                ₹{Math.round(product.price * 1.3)}
               </span>
             )}
           </div>

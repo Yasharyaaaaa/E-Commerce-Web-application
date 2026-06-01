@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { SearchProvider } from "./context/SearchContext";
+import { SocketProvider } from "./context/SocketContext";
 import { PrivateRoute, AdminRoute } from "./components/ProtectedRoute";
 
 // Layouts
@@ -16,6 +17,7 @@ import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
 import Checkout from "./pages/Checkout";
 import Categories from "./pages/Categories";
+import Chat from "./pages/Chat";
 
 // Admin pages
 import Dashboard from "./admin/pages/Dashboard";
@@ -27,6 +29,7 @@ function App() {
   return (
     <Router>
       <AuthProvider>
+       <SocketProvider>
         {/* ── Admin routes — no Navbar, own layout ── */}
         <Routes>
           <Route
@@ -59,6 +62,8 @@ function App() {
                       <Route path="/cart"       element={<Cart />} />
                       <Route path="/checkout"   element={<PrivateRoute><Checkout /></PrivateRoute>} />
                       <Route path="/orders"     element={<PrivateRoute><Orders /></PrivateRoute>} />
+                      <Route path="/chat"       element={<PrivateRoute><Chat /></PrivateRoute>} />
+                      <Route path="/chat/:id"   element={<PrivateRoute><Chat /></PrivateRoute>} />
                       <Route path="/categories" element={<Categories />} />
                       <Route path="/categories/:category" element={<Categories />} />
                       <Route path="*"         element={<Navigate to="/" replace />} />
@@ -69,6 +74,7 @@ function App() {
             }
           />
         </Routes>
+       </SocketProvider>
       </AuthProvider>
     </Router>
   );

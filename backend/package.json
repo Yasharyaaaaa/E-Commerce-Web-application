@@ -25,6 +25,7 @@
     "nodemailer": "^8.0.8",
     "nodemon": "^3.1.14",
     "razorpay": "^2.9.6",
-    "redis": "^5.12.1"
+    "redis": "^5.12.1",
+    "socket.io": "^4.8.3"
   }
 }

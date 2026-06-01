@@ -75,7 +75,7 @@ const AdminProducts = () => {
                         <span className="font-bold line-clamp-1">{p.name}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-3 font-black">${p.price}</td>
+                    <td className="px-6 py-3 font-black">₹{p.price}</td>
                     <td className="px-6 py-3 text-gray-500 capitalize">{p.category ?? "—"}</td>
                   </tr>
                 ))}

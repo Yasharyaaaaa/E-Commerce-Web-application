@@ -3,6 +3,8 @@ import Order from "../models/order.model.js";
 import ApiError from "../utils/errorHandler.utils.js";
 import { createRazorpayOrder, verifyRazorpayPayment } from "../services/payment.service.js";
 import { sendEmail } from "../utils/email.utils.js";
+import { getIO } from "../src/socket/socket.manager.js";
+import { emitOrderPaid, emitOrderStatusChanged } from "../src/socket/order.events.js";
 
 // Create Order
 export const createOrder = asyncHandler(async (req, res) => {
@@ -101,6 +103,10 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Order not found");
   }
 
+  if (orderStatus) {
+    await emitOrderStatusChanged(getIO(), order, orderStatus);
+  }
+
   res.status(200).json({
     success: true,
     message: "Order status updated",
@@ -167,6 +173,9 @@ export const verifyPayment = asyncHandler(async (req, res) => {
   } catch (emailError) {
     console.error("Payment confirmation email failed:", emailError);
   }
+
+  // Notify the buyer (live toast) + persist an order card into the store chat.
+  await emitOrderPaid(getIO(), order);
 
   res.status(200).json({
     success: true,
