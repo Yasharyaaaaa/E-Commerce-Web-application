@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Search, Trash2 } from "lucide-react";
+import { Search, Trash2, Ban, ShieldCheck } from "lucide-react";
 import api from "../../utils/api";
 
 const AdminUsers = () => {
@@ -29,10 +29,21 @@ const AdminUsers = () => {
   const handleDelete = async (id) => {
     if (!confirm("Delete this user?")) return;
     try {
-      await api.delete(`/users/v1/delete/${id}`);
+      await api.delete(`/users/v1/${id}`);
       setUsers((prev) => prev.filter((u) => u._id !== id));
     } catch (err) {
       alert(err.response?.data?.message ?? "Delete failed");
+    }
+  };
+
+  const handleBan = async (user) => {
+    const next = !user.isBanned;
+    if (!confirm(`${next ? "Ban" : "Unban"} ${user.username}?`)) return;
+    try {
+      await api.patch(`/users/v1/${user._id}/ban`, { isBanned: next });
+      setUsers((prev) => prev.map((u) => (u._id === user._id ? { ...u, isBanned: next } : u)));
+    } catch (err) {
+      alert(err.response?.data?.message ?? "Action failed");
     }
   };
 
@@ -102,23 +113,43 @@ const AdminUsers = () => {
                     </td>
                     <td className="px-6 py-3 text-gray-500">{u.email}</td>
                     <td className="px-6 py-3">
-                      <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full
-                        ${u.role === "admin" ? "bg-black text-white" : "bg-gray-100 text-gray-600"}`}>
-                        {u.role}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full
+                          ${u.role === "admin" ? "bg-black text-white" : "bg-gray-100 text-gray-600"}`}>
+                          {u.role}
+                        </span>
+                        {u.isBanned && (
+                          <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full bg-red-50 text-red-600">
+                            Banned
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-3 text-gray-400 text-xs">
                       {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—"}
                     </td>
                     <td className="px-6 py-3">
                       <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleDelete(u._id)}
-                          className="w-8 h-8 flex items-center justify-center rounded-xl text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors"
-                          aria-label="Delete user"
-                        >
-                          <Trash2 size={15} />
-                        </button>
+                        {u.role !== "admin" && (
+                          <>
+                            <button
+                              onClick={() => handleBan(u)}
+                              className={`w-8 h-8 flex items-center justify-center rounded-xl transition-colors ${u.isBanned ? "text-green-500 hover:bg-green-50" : "text-amber-500 hover:bg-amber-50"}`}
+                              aria-label={u.isBanned ? "Unban user" : "Ban user"}
+                              title={u.isBanned ? "Unban" : "Ban"}
+                            >
+                              {u.isBanned ? <ShieldCheck size={15} /> : <Ban size={15} />}
+                            </button>
+                            <button
+                              onClick={() => handleDelete(u._id)}
+                              className="w-8 h-8 flex items-center justify-center rounded-xl text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                              aria-label="Delete user"
+                              title="Delete"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>

@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Star, ShoppingCart, Plus, Minus, MessageCircle } from "lucide-react";
+import { Star, ShoppingCart, Plus, Minus, MessageCircle, Flag } from "lucide-react";
 import { motion } from "framer-motion";
 import { useLocation, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, increase, decrease, selectItemInCart } from "../store/cartSlice";
 import { useSearch } from "../hooks/useSearch";
 import { useStartChat } from "../hooks/useStartChat";
+import api from "../utils/api";
 
 // ── Intersection observer hook ───────────────────────────────────────────────
 // Returns [ref, hasBeenVisible] — once visible, stays true forever
@@ -301,6 +302,18 @@ const ProductCard = ({ product }) => {
   const cartItem = useSelector(selectItemInCart(product._id));
   const startChat = useStartChat();
 
+  const reportProduct = async (e) => {
+    e.preventDefault();
+    const reason = window.prompt("Report this product — what's wrong with it?");
+    if (reason === null) return; // cancelled
+    try {
+      await api.post(`/products/v1/${product._id}/report`, { reason });
+      alert("Thanks — our team will review this product.");
+    } catch (err) {
+      alert(err?.response?.data?.message ?? "Please log in to report a product.");
+    }
+  };
+
   return (
     <motion.div
       whileHover={{ y: -8 }}
@@ -319,14 +332,23 @@ const ProductCard = ({ product }) => {
             Sale
           </span>
         )}
-        {/* Contact Store — opens chat with this product as context */}
-        <button
-          onClick={(e) => { e.preventDefault(); startChat(product._id); }}
-          title="Ask the store about this product"
-          className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur text-black flex items-center justify-center shadow-sm hover:bg-white hover:scale-110 transition-all"
-        >
-          <MessageCircle size={16} />
-        </button>
+        {/* Quick actions — chat with store, report product */}
+        <div className="absolute top-3 right-3 flex flex-col gap-2">
+          <button
+            onClick={(e) => { e.preventDefault(); startChat(product._id); }}
+            title="Ask the store about this product"
+            className="w-9 h-9 rounded-full bg-white/90 backdrop-blur text-black flex items-center justify-center shadow-sm hover:bg-white hover:scale-110 transition-all"
+          >
+            <MessageCircle size={16} />
+          </button>
+          <button
+            onClick={reportProduct}
+            title="Report this product"
+            className="w-9 h-9 rounded-full bg-white/90 backdrop-blur text-gray-500 flex items-center justify-center shadow-sm hover:bg-white hover:text-red-500 hover:scale-110 transition-all"
+          >
+            <Flag size={15} />
+          </button>
+        </div>
       </div>
 
       <div className="px-1 space-y-3 flex-grow flex flex-col">

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, Trash2, Flag, ShieldCheck } from "lucide-react";
 import api from "../../utils/api";
 
 const AdminProducts = () => {
@@ -15,9 +15,29 @@ const AdminProducts = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = products.filter((p) =>
-    p.name?.toLowerCase().includes(query.toLowerCase())
-  );
+  const handleRemove = async (id) => {
+    if (!confirm("Remove this product permanently?")) return;
+    try {
+      await api.delete(`/products/v1/${id}`);
+      setProducts((prev) => prev.filter((p) => p._id !== id));
+    } catch (err) {
+      alert(err.response?.data?.message ?? "Remove failed");
+    }
+  };
+
+  const handleUnflag = async (id) => {
+    try {
+      await api.patch(`/products/v1/${id}/flag`, { isFlagged: false });
+      setProducts((prev) => prev.map((p) => (p._id === id ? { ...p, isFlagged: false, flagReason: "" } : p)));
+    } catch (err) {
+      alert(err.response?.data?.message ?? "Action failed");
+    }
+  };
+
+  // Flagged products float to the top for review.
+  const filtered = products
+    .filter((p) => p.name?.toLowerCase().includes(query.toLowerCase()))
+    .sort((a, b) => Number(b.isFlagged) - Number(a.isFlagged));
 
   return (
     <div className="space-y-6">
@@ -64,11 +84,13 @@ const AdminProducts = () => {
                   <th className="px-6 py-3">Product</th>
                   <th className="px-6 py-3">Price</th>
                   <th className="px-6 py-3">Category</th>
+                  <th className="px-6 py-3">Status</th>
+                  <th className="px-6 py-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((p) => (
-                  <tr key={p._id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                  <tr key={p._id} className={`border-b border-gray-50 transition-colors ${p.isFlagged ? "bg-red-50/40 hover:bg-red-50" : "hover:bg-gray-50"}`}>
                     <td className="px-6 py-3">
                       <div className="flex items-center gap-3">
                         <img src={p.image} alt={p.name} className="w-10 h-10 rounded-xl object-cover bg-gray-100 shrink-0" />
@@ -77,6 +99,37 @@ const AdminProducts = () => {
                     </td>
                     <td className="px-6 py-3 font-black">₹{p.price}</td>
                     <td className="px-6 py-3 text-gray-500 capitalize">{p.category ?? "—"}</td>
+                    <td className="px-6 py-3">
+                      {p.isFlagged ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full bg-red-50 text-red-600" title={p.flagReason || "Reported"}>
+                          <Flag size={11} /> Flagged
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-300">OK</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-3">
+                      <div className="flex items-center justify-end gap-2">
+                        {p.isFlagged && (
+                          <button
+                            onClick={() => handleUnflag(p._id)}
+                            className="w-8 h-8 flex items-center justify-center rounded-xl text-green-500 hover:bg-green-50 transition-colors"
+                            aria-label="Unflag product"
+                            title="Clear flag"
+                          >
+                            <ShieldCheck size={15} />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleRemove(p._id)}
+                          className="w-8 h-8 flex items-center justify-center rounded-xl text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                          aria-label="Remove product"
+                          title="Remove"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>

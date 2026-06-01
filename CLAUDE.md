@@ -75,11 +75,16 @@ Single-vendor model: every buyer chats with **the store** (an `admin` account). 
 These exist in `shoptalk_build_roadmap.html` but are **not implemented** — see `FEATURE_PLAN.md`:
 
 1. **Seller role & seller dashboard** — only `user`/`admin` exist; products are admin-only CRUD. (Chat is single-vendor for now.)
-2. **Admin moderation** — ban/unban users, flag/remove products. (Analytics dashboard is **done** — see below.)
-3. **Tests** — Jest + Supertest integration tests for auth/product/checkout.
-4. **Refresh-token pattern**.
+2. **Tests** — Jest + Supertest integration tests for auth/product/checkout.
+3. **Refresh-token pattern**.
 
-(Security hardening — helmet, cors whitelist, express-validator, Razorpay webhook — is **done**, see below.)
+(Security hardening — helmet, cors whitelist, express-validator, Razorpay webhook — and admin analytics + moderation are all **done**, see below.)
+
+## Admin Moderation (implemented)
+
+- **Users** (`User.isBanned`): `PATCH /api/users/v1/:id/ban` (admin) bans/unbans; banned users are blocked at **login** (403). `DELETE /api/users/v1/:id` (admin) removes a user. Admins can't be banned/deleted, and you can't act on your own account. `GET /api/users/v1/allusers` is now **admin-guarded** (was missing `isAdmin`). Self-service `PUT /update` + `DELETE /delete` are unchanged.
+- **Products** (`Product.isFlagged`, `flagReason`): `POST /api/products/v1/:id/report` (any logged-in user) flags a product with a reason; `PATCH /api/products/v1/:id/flag` (admin) clears/sets the flag; existing admin `DELETE /:id` removes it. Report/flag invalidate the `products:all` cache so admin sees changes immediately.
+- **Frontend**: `AdminUsers` (ban/unban + banned badge, fixed delete → `DELETE /:id`), `AdminProducts` (flagged rows float to top, Flag badge, unflag + remove), and a **Report** (flag icon) button on each `Home` product card.
 
 ## Admin Analytics (implemented)
 

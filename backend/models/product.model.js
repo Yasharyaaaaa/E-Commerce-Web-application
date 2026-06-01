@@ -33,6 +33,15 @@ const productSchema = new mongoose.Schema(
     imagePublicId: {
       type: String, // Cloudinary Public ID for deletion
     },
+    // Moderation: buyers can report a product; admins review flagged items.
+    isFlagged: {
+      type: Boolean,
+      default: false,
+    },
+    flagReason: {
+      type: String,
+      default: "",
+    },
   },
   { timestamps: true }
 );

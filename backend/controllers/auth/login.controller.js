@@ -21,6 +21,10 @@ export const login = asyncHandler(async (req, res, next) => {
     throw new ApiError(401, "Invalid credentials");
   }
 
+  if (user.isBanned) {
+    throw new ApiError(403, "Your account has been banned. Please contact support.");
+  }
+
   const token = jwt.sign(
     { _id: user._id, role: user.role, email: user.email },
     process.env.JWT_SECRET,
