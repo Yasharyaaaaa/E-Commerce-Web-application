@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Mail, Lock, User, AlertCircle } from "lucide-react";
+import { Mail, Lock, User, AlertCircle, ShoppingBag, Store } from "lucide-react";
 import api from "../utils/api";
 
 const Signup = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("user"); // "user" = buyer, "seller"
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -15,7 +16,7 @@ const Signup = () => {
     e.preventDefault();
     setError("");
     try {
-      await api.post("/auth/v1/register", { username, email, password });
+      await api.post("/auth/v1/register", { username, email, password, role });
       navigate("/login");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
@@ -42,6 +43,29 @@ const Signup = () => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Account type */}
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">I want to</label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { value: "user",   label: "Buy products", Icon: ShoppingBag },
+                { value: "seller", label: "Sell products", Icon: Store },
+              ].map(({ value, label, Icon }) => (
+                <button
+                  type="button"
+                  key={value}
+                  onClick={() => setRole(value)}
+                  className={`flex items-center gap-2 px-4 py-3 rounded-2xl border-2 text-sm font-bold transition-all ${
+                    role === value ? "border-black bg-black text-white" : "border-gray-200 text-gray-600 hover:border-gray-300"
+                  }`}
+                >
+                  <Icon size={18} />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="space-y-2">
             <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Username</label>
             <div className="relative">

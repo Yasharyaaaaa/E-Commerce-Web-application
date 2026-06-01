@@ -45,7 +45,7 @@ npm run build      # vite build -> dist (backend serves this in prod)
 npm run lint       # eslint
 ```
 
-There is **no test suite** yet (`backend` test script is a placeholder).
+**Tests**: `cd backend && npm test` — Jest + Supertest + `mongodb-memory-server` (ESM via `NODE_OPTIONS=--experimental-vm-modules`). Specs live in `backend/tests/` (auth, product, order/payment). First run downloads a mongod binary.
 
 ## Conventions (match these)
 
@@ -53,8 +53,8 @@ There is **no test suite** yet (`backend` test script is a placeholder).
 - **Controllers** are wrapped in `asyncHandler` and throw `ApiError(status, message)` for failures; the central `error.middle.js` formats the response.
 - **API responses** use the shape `{ success, message?, data | user, ... }`.
 - **Routes are versioned**: `/api/auth/v1`, `/api/users/v1`, `/api/orders/v1`, `/api/products/v1`.
-- **Auth**: JWT signed with `JWT_SECRET`, returned both in an httpOnly `token` cookie *and* in the JSON body. Frontend stores it in `localStorage` and sends it as a `Bearer` header via the axios interceptor in `utils/api.js`. There is currently **no refresh-token rotation** — single access token.
-- **Roles**: `user` and `admin` only (see `user.model.js`). There is **no `seller` role** yet.
+- **Auth**: short-lived access JWT (`JWT_SECRET`, `ACCESS_EXPIRES_IN` ~15m) returned in the login JSON body; the frontend stores it in `localStorage` and sends it as a `Bearer` header (axios interceptor in `utils/api.js`). A long-lived **refresh token** (`REFRESH_SECRET`, `REFRESH_EXPIRES_IN` ~7d) lives in an httpOnly `refreshToken` cookie. `POST /auth/v1/refresh` rotates it and issues a new access token; the axios response interceptor calls it automatically on a 401 and replays the request. `POST /auth/v1/logout` clears the cookie.
+- **Roles**: `user` (buyer), `seller`, `admin` (see `user.model.js`). Guard routes with `middleware/role.middle.js` `roleMiddleware(...roles)` (or the legacy `isAdmin`). Public signup may only create `user`/`seller` — never `admin`. Sellers own products (`Product.seller`) and CRUD only their own; admins manage any. Chat remains single-vendor (buyer↔admin store).
 - **Payments**: **Razorpay** (not Stripe). Flow = create order (`paymentStatus:"pending"`) → open Razorpay modal → `POST /verify-payment` verifies signature server-side → mark `completed`. There is **also** a server-to-server webhook (`POST /api/orders/v1/webhook`, raw-body HMAC verified) that marks orders paid/failed independently — see "Security".
 - **Frontend state**: auth via React Context (`AuthContext`); cart via Redux Toolkit + redux-persist. Don't move auth into Redux without reason.
 - **Styling**: Tailwind v4 (via `@tailwindcss/vite`), `lucide-react` icons, `framer-motion`, `clsx`/`tailwind-merge`.
@@ -70,15 +70,15 @@ Single-vendor model: every buyer chats with **the store** (an `admin` account). 
 - **Frontend**: `SocketContext` opens one authed socket while logged in; `useSocket` / `useStartChat` hooks; `pages/Chat.jsx` (list + window + product-context card + presence dots + typing + "Seen" receipts; sidebar driven by `conversation:updated`). Entry points: chat icon in `Navbar`, and a "Contact Store" button on each product card in `Home.jsx`.
 - **Dev**: Vite proxies `/socket.io` (ws:true) → backend. **Prod**: must run on a persistent host (Render/Railway), NOT Vercel serverless. `CLIENT_URL` env sets Socket.io CORS origin.
 
-## Important Gaps vs. Roadmap (intended future work)
+## Roadmap status
 
-These exist in `shoptalk_build_roadmap.html` but are **not implemented** — see `FEATURE_PLAN.md`:
+The roadmap (`shoptalk_build_roadmap.html`) is now essentially fully implemented — real-time chat, e-commerce core, admin analytics + moderation, security hardening, **seller role + dashboard**, **refresh-token rotation**, and a **Jest/Supertest test suite**. Chat is single-vendor (buyer↔admin store) by design. See `FEATURE_PLAN.md` for the per-phase breakdown.
 
-1. **Seller role & seller dashboard** — only `user`/`admin` exist; products are admin-only CRUD. (Chat is single-vendor for now.)
-2. **Tests** — Jest + Supertest integration tests for auth/product/checkout.
-3. **Refresh-token pattern**.
+## Seller role (implemented)
 
-(Security hardening — helmet, cors whitelist, express-validator, Razorpay webhook — and admin analytics + moderation are all **done**, see below.)
+- `User.role` ∈ `user|seller|admin`; `Product.seller` references the owner. `createProduct` stamps `seller = req.user._id`; `updateProduct`/`deleteProduct` allow the owner or an admin (403 otherwise). `GET /api/products/v1/mine` (seller/admin) backs the dashboard.
+- Routes use `roleMiddleware("admin","seller")`; signup offers buyer/seller (validator forbids `admin`).
+- **Frontend**: `SellerRoute`, `pages/SellerDashboard.jsx` (my products + create/edit/delete modal with image upload), Store icon in `Navbar`, buyer/seller toggle in `Signup`.
 
 ## Admin Moderation (implemented)
 

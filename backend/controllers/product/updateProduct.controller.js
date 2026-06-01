@@ -9,6 +9,17 @@ export const updateProduct = asyncHandler(async (req, res, next) => {
   
   let updateData = { ...req.body };
 
+  const existing = await Product.findById(id);
+  if (!existing) {
+    throw new ApiError(404, "Product not found");
+  }
+  // Sellers may only edit their own products; admins may edit any.
+  if (req.user.role !== "admin" && existing.seller?.toString() !== req.user._id.toString()) {
+    throw new ApiError(403, "You can only edit your own products");
+  }
+  // Never let the owner be reassigned via the body.
+  delete updateData.seller;
+
   if (req.file) {
     const cloudinaryResponse = await uploadOnCloudinary(req.file.path);
     if (cloudinaryResponse) {
@@ -22,10 +33,6 @@ export const updateProduct = asyncHandler(async (req, res, next) => {
     { $set: updateData },
     { new: true, runValidators: true }
   );
-
-  if (!product) {
-    throw new ApiError(404, "Product not found");
-  }
 
   // Invalidate Cache
   try {

@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { AuthProvider } from "./context/AuthContext";
 import { SearchProvider } from "./context/SearchContext";
 import { SocketProvider } from "./context/SocketContext";
-import { PrivateRoute, AdminRoute } from "./components/ProtectedRoute";
+import { PrivateRoute, AdminRoute, SellerRoute } from "./components/ProtectedRoute";
 
 // Layouts
 import Navbar from "./components/Navbar";
@@ -19,6 +19,9 @@ import Orders from "./pages/Orders";
 import Checkout from "./pages/Checkout";
 import Categories from "./pages/Categories";
 import Chat from "./pages/Chat";
+
+// Seller dashboard — lazy-loaded (only sellers/admins reach it)
+const SellerDashboard = lazy(() => import("./pages/SellerDashboard"));
 
 // Admin pages — lazy-loaded so the heavy charting deps (Recharts) only load
 // when an admin actually visits /admin, keeping the storefront bundle small.
@@ -68,6 +71,7 @@ function App() {
                       <Route path="/orders"     element={<PrivateRoute><Orders /></PrivateRoute>} />
                       <Route path="/chat"       element={<PrivateRoute><Chat /></PrivateRoute>} />
                       <Route path="/chat/:id"   element={<PrivateRoute><Chat /></PrivateRoute>} />
+                      <Route path="/seller"     element={<SellerRoute><Suspense fallback={<div className="p-10 text-sm text-gray-400">Loading…</div>}><SellerDashboard /></Suspense></SellerRoute>} />
                       <Route path="/categories" element={<Categories />} />
                       <Route path="/categories/:category" element={<Categories />} />
                       <Route path="*"         element={<Navigate to="/" replace />} />

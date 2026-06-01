@@ -1,8 +1,9 @@
 import asyncHandler from "../../utils/asyncHandler.utils.js";
 import User from "../../models/user.model.js";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import ApiError from "../../utils/errorHandler.utils.js";
+import { signAccessToken, signRefreshToken } from "../../utils/jwt.utils.js";
+import { refreshCookieOptions } from "./refreshCookie.js";
 
 export const login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
@@ -25,23 +26,13 @@ export const login = asyncHandler(async (req, res, next) => {
     throw new ApiError(403, "Your account has been banned. Please contact support.");
   }
 
-  const token = jwt.sign(
-    { _id: user._id, role: user.role, email: user.email },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN }
-  );
-
-  const cookieOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    expires: new Date(
-      Date.now() + process.env.COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
-    ),
-  };
+  const payload = { _id: user._id, role: user.role, email: user.email };
+  const token = signAccessToken(payload);
+  const refreshToken = signRefreshToken(payload);
 
   res
     .status(200)
-    .cookie("token", token, cookieOptions)
+    .cookie("refreshToken", refreshToken, refreshCookieOptions())
     .json({
       success: true,
       message: "Login successful",
@@ -51,6 +42,6 @@ export const login = asyncHandler(async (req, res, next) => {
         email: user.email,
         role: user.role,
       },
-      token,
+      token, // short-lived access token (frontend stores in localStorage)
     });
 });

@@ -6,11 +6,11 @@ Comparison of the current codebase against `shoptalk_build_roadmap.html`, and a 
 
 | Roadmap Phase | Status | Notes |
 |---|---|---|
-| **1. Setup + Auth** | ✅ Mostly done | Monorepo, MongoDB, JWT auth, `verifyToken` + `isAdmin` middleware, React auth via Context. ⚠️ No refresh-token rotation. Roles are `user`/`admin` only — **no `seller`**. |
-| **2. E-commerce core** | ✅ Mostly done | Product CRUD (Cloudinary), listing + search + filter + categories, Redux cart, checkout, orders. ⚠️ Uses **Razorpay** (not Stripe), and **signature verification** instead of a **webhook**. Product CRUD is admin-only, not seller-driven. Product has single `image`, not `images[]`. |
+| **1. Setup + Auth** | ✅ Done | Monorepo, MongoDB, JWT auth, `verifyToken` + `roleMiddleware`/`isAdmin`, React auth via Context. **Refresh-token rotation** (httpOnly cookie + `/refresh` + axios auto-retry). Roles: `user`/`seller`/`admin`. |
+| **2. E-commerce core** | ✅ Done | Product CRUD (Cloudinary), listing + search + filter + categories, Redux cart, checkout, orders. **Sellers CRUD their own products** + seller dashboard. ⚠️ Uses **Razorpay** (not Stripe) with both signature verify **and** a webhook. Product still has single `image`, not `images[]`. |
 | **3. Real-time chat** | ✅ **Done (single-vendor)** | `Conversation`/`Message` models, JWT-authed Socket.io, chat UI, presence, typing, read receipts, product-context card, live order cards. Buyer↔store (admin) model. See CLAUDE.md "Real-time Chat". |
 | **4. Admin panel + analytics** | ✅ Done | Analytics dashboard (`$sum` revenue, top products, 30-day trend, orders-by-status, conversion via Recharts) **and** moderation: ban/unban users (`User.isBanned`, blocked at login), report/flag/unflag + remove products (`Product.isFlagged`). `/allusers` is now admin-guarded. |
-| **5. Polish / tests / deploy** | 🟡 Hardening done | Deployed (Vercel + backend). **Security hardening done**: `helmet`, `cors` whitelist, `express-validator` on auth/product/order, Razorpay webhook. ⚠️ Still missing: tests (Jest+Supertest). |
+| **5. Polish / tests / deploy** | ✅ Done | **Security hardening**: `helmet`, `cors` whitelist, `express-validator`, Razorpay webhook. **Tests**: Jest + Supertest + `mongodb-memory-server` (19 tests across auth/product/order/payment, `npm test`). |
 
 ## What to add (priority order)
 

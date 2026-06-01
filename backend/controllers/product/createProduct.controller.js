@@ -30,6 +30,7 @@ export const createProduct = asyncHandler(async (req, res, next) => {
     stock: stock || 0,
     image: imageUrl,
     imagePublicId,
+    seller: req.user._id, // owner — admins and sellers alike
   });
 
   // Invalidate Cache

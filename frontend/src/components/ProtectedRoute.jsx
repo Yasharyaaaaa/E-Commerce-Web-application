@@ -15,3 +15,11 @@ export const AdminRoute = ({ children }) => {
   if (user.role !== "admin") return <Navigate to="/" replace />;
   return children;
 };
+
+// Sellers (and admins) only
+export const SellerRoute = ({ children }) => {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role !== "seller" && user.role !== "admin") return <Navigate to="/" replace />;
+  return children;
+};

@@ -26,6 +26,11 @@ const productSchema = new mongoose.Schema(
       required: [true, "Product stock is required"],
       default: 0,
     },
+    // The seller who owns this product. Optional for legacy/admin-seeded items.
+    seller: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
     image: {
       type: String, // Cloudinary URL
       default: "https://images.pexels.com/photos/90946/pexels-photo-90946.jpeg",

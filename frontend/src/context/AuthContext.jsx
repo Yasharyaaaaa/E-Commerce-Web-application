@@ -1,4 +1,5 @@
 import { createContext, useState, useCallback } from "react";
+import api from "../utils/api";
 
 export const AuthContext = createContext(null);
 
@@ -22,8 +23,10 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
   }, []);
 
-  // Clears everything — user data, token, and any other app keys
+  // Clears everything — user data, token, and the httpOnly refresh cookie
   const logout = useCallback(() => {
+    // Best-effort: clear the server-side refresh cookie.
+    api.post("/auth/v1/logout").catch(() => {});
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(TOKEN_KEY);
     setUser(null);
