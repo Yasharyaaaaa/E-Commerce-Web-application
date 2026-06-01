@@ -14,10 +14,10 @@ A MERN e-commerce marketplace (roadmap codename: **ShopTalk**). Monorepo with an
   src/app.js      Express app: mounts /api routers, error middleware, serves frontend dist
   src/socket/     socket.manager.js (JWT-auth handshake, rooms, presence, getIO()), order.events.js (emitOrderPaid/emitOrderStatusChanged)
   config/         db, redis, cloudinary, multer, nodemailer, rateLimit
-  controllers/    auth/, product/, user/ (one file per action), order.controller.js, conversation.controller.js
+  controllers/    auth/, product/, user/ (one file per action), order.controller.js, conversation.controller.js, analytics.controller.js
   middleware/     verifyToken, isAdmin, error
   models/         user, product, order, conversation, message
-  routes/         auth, product, order, users, conversation  (versioned: /api/<x>/v1/...)
+  routes/         auth, product, order, users, conversation, analytics  (versioned: /api/<x>/v1/...)
   services/       payment.service.js (Razorpay)
   utils/          asyncHandler, ApiError, cloudinary, email, productSeeder, jwt.utils (verifyAccessToken)
 /frontend         Vite + React 19 + Tailwind v4
@@ -75,10 +75,15 @@ Single-vendor model: every buyer chats with **the store** (an `admin` account). 
 These exist in `shoptalk_build_roadmap.html` but are **not implemented** — see `FEATURE_PLAN.md`:
 
 1. **Seller role & seller dashboard** — only `user`/`admin` exist; products are admin-only CRUD. (Chat is single-vendor for now.)
-2. **Admin analytics** — revenue `$sum` aggregation + Recharts; moderation/ban.
+2. **Admin moderation** — ban/unban users, flag/remove products. (Analytics dashboard is **done** — see below.)
 3. **Security hardening** — `helmet`, `cors` whitelist, `express-validator` input sanitization (rate-limiting exists).
 4. **Tests** — Jest + Supertest integration tests for auth/product/checkout.
 5. **Refresh-token pattern**.
+
+## Admin Analytics (implemented)
+
+- **Backend**: `GET /api/analytics/v1/overview` (admin-guarded) in `analytics.controller.js` — MongoDB aggregation for revenue (`$sum` on completed-payment orders), paid/total orders, users, products, conversion rate, a gap-filled 30-day revenue trend, top-5 products (`$unwind` items → units + revenue), order-status breakdown, and recent orders.
+- **Frontend**: `admin/pages/Dashboard.jsx` renders stat cards + **Recharts** (area = revenue trend, vertical bar = top products, donut = orders by status) + recent-orders table. Admin pages are **lazy-loaded** (`React.lazy` in `App.jsx`) so Recharts ships in a separate chunk, keeping the storefront bundle lean.
 
 ## Gotchas
 

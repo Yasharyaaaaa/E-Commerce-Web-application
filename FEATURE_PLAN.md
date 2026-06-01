@@ -9,7 +9,7 @@ Comparison of the current codebase against `shoptalk_build_roadmap.html`, and a 
 | **1. Setup + Auth** | ✅ Mostly done | Monorepo, MongoDB, JWT auth, `verifyToken` + `isAdmin` middleware, React auth via Context. ⚠️ No refresh-token rotation. Roles are `user`/`admin` only — **no `seller`**. |
 | **2. E-commerce core** | ✅ Mostly done | Product CRUD (Cloudinary), listing + search + filter + categories, Redux cart, checkout, orders. ⚠️ Uses **Razorpay** (not Stripe), and **signature verification** instead of a **webhook**. Product CRUD is admin-only, not seller-driven. Product has single `image`, not `images[]`. |
 | **3. Real-time chat** | ✅ **Done (single-vendor)** | `Conversation`/`Message` models, JWT-authed Socket.io, chat UI, presence, typing, read receipts, product-context card, live order cards. Buyer↔store (admin) model. See CLAUDE.md "Real-time Chat". |
-| **4. Admin panel + analytics** | 🟡 Partial | Admin layout + Users/Products/Orders pages exist. ⚠️ No revenue aggregation/analytics charts, no ban/unban, no moderation. |
+| **4. Admin panel + analytics** | ✅ Analytics done | Admin layout + Users/Products/Orders pages. **Analytics dashboard done**: `$sum` revenue, top products, 30-day revenue trend, orders-by-status, conversion (Recharts, `/api/analytics/v1/overview`). ⚠️ Still missing: ban/unban + product moderation. |
 | **5. Polish / tests / deploy** | 🟡 Partial | Deployed (Vercel + backend). ⚠️ No tests, missing `helmet`/`cors`/`express-validator`. |
 
 ## What to add (priority order)

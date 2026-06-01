@@ -7,6 +7,7 @@ import usersRouter from "../routes/users.routes.js";
 import ordersRouter from "../routes/order.routes.js";
 import productRouter from "../routes/product.routes.js";
 import conversationRouter from "../routes/conversation.routes.js";
+import analyticsRouter from "../routes/analytics.routes.js";
 import errorMiddleware from "../middleware/error.middle.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -23,6 +24,7 @@ app.use("/api/users/v1", usersRouter);
 app.use("/api/orders/v1", ordersRouter);
 app.use("/api/products/v1", productRouter);
 app.use("/api/conversations/v1", conversationRouter);
+app.use("/api/analytics/v1", analyticsRouter);
 
 app.get("/api/health", (req, res) => {
   res.send("OK");

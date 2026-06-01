@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { SearchProvider } from "./context/SearchContext";
@@ -19,11 +20,12 @@ import Checkout from "./pages/Checkout";
 import Categories from "./pages/Categories";
 import Chat from "./pages/Chat";
 
-// Admin pages
-import Dashboard from "./admin/pages/Dashboard";
-import AdminUsers from "./admin/pages/AdminUsers";
-import AdminProducts from "./admin/pages/AdminProducts";
-import AdminOrders from "./admin/pages/AdminOrders";
+// Admin pages — lazy-loaded so the heavy charting deps (Recharts) only load
+// when an admin actually visits /admin, keeping the storefront bundle small.
+const Dashboard     = lazy(() => import("./admin/pages/Dashboard"));
+const AdminUsers    = lazy(() => import("./admin/pages/AdminUsers"));
+const AdminProducts = lazy(() => import("./admin/pages/AdminProducts"));
+const AdminOrders   = lazy(() => import("./admin/pages/AdminOrders"));
 
 function App() {
   return (
@@ -36,7 +38,9 @@ function App() {
             path="/admin/*"
             element={
               <AdminRoute>
-                <AdminLayout />
+                <Suspense fallback={<div className="p-10 text-sm text-gray-400">Loading…</div>}>
+                  <AdminLayout />
+                </Suspense>
               </AdminRoute>
             }
           >
