@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Users, Package, ShoppingBag,
-  LogOut, Menu, ChevronRight,
+  LogOut, Menu, ChevronRight, MessageCircle,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 
@@ -11,6 +11,7 @@ const NAV = [
   { to: "/admin/users",    label: "Users",       icon: Users },
   { to: "/admin/products", label: "Products",    icon: Package },
   { to: "/admin/orders",   label: "Orders",      icon: ShoppingBag },
+  { to: "/chat",           label: "Messages",    icon: MessageCircle },
 ];
 
 // ── Sidebar content — declared outside AdminLayout to avoid re-creating on render ──
